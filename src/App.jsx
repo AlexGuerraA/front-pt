@@ -1,35 +1,35 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Grid } from "@mui/material";
+import Create from "./components/create";
+import Table from "./components/table";
+import SnackbarGlobal from "./components/snackbar";
+import { useQueryClient } from "react-query";
+import { useState } from "react";
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [notification, setNotification] = useState({open: false, message: '', severity: 'info'})
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+  const queryClient = useQueryClient()
+
+  //? Refrescamos los datos
+  const handleRefreshData = () => {queryClient.invalidateQueries('devs')}
+  const handleWatchAction = (success, message, severity) => {
+      setNotification({open: true, message: message, severity: severity})
+      if (success) { handleRefreshData()}
+  }
+
+  return (  
+    <Grid container>
+      <Grid item xs={12} md={3} lg={3} p={2}>
+        <h1>Datos</h1>
+        <Create watch={handleWatchAction}/>
+      </Grid>
+      <Grid item xs={12} md={9} lg={9} p={2}>
+        <h1>Lista de desarrolladores</h1>
+        <Table/>
+      </Grid>
+      <SnackbarGlobal vertical='top' horizontal='right'  open={notification.open} close={() => setNotification({ open: false, message: "", severity: "info" })} message={notification.message} severity={notification.severity} />
+
+    </Grid>
   )
 }
 
-export default App
